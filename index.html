@@ -1,0 +1,381 @@
+<html><head><base href="https://www.example.com/" />
+<meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Aprende a Leer Español - Aventura de Lectura con Sonidos!</title>
+<style>
+  body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #ffeaa7;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .container {
+    background-color: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 5px solid #fdcb6e;
+  }
+  h1 {
+    color: #e17055;
+    text-align: center;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  .alphabet-container, .syllable-container, .word-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .letter-box, .syllable-box, .word-box {
+    font-size: 36px;
+    font-weight: bold;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #74b9ff;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    border: 3px solid #0984e3;
+  }
+  .letter-box:hover, .syllable-box:hover, .word-box:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+  }
+  .level-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .level-button {
+    padding: 15px 30px;
+    font-size: 20px;
+    background-color: #fdcb6e;
+    color: #2d3436;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  .level-button:hover {
+    background-color: #ffeaa7;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .bounce {
+    animation: bounce 0.5s;
+  }
+  .word-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .word-box {
+    font-size: 24px;
+    padding: 15px 25px;
+    background-color: #55efc4;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    border: 3px solid #00b894;
+  }
+  .word-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    background-color: #00b894;
+    color: white;
+  }
+  .feedback {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .next-button {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #fdcb6e;
+    color: #2d3436;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .next-button:hover {
+    background-color: #ffeaa7;
+    transform: translateY(-3px);
+  }
+  .sound-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: #fdcb6e;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+  <div class="container" id="level1">
+    <h1>¡Aventura de Lectura - Nivel 1!</h1>
+    <div class="alphabet-container" id="alphabetContainer"></div>
+  </div>
+
+  <div class="container" id="level2" style="display: none;">
+    <h1>¡Aventura de Lectura - Nivel 2!</h1>
+    <div class="syllable-container" id="syllableContainer"></div>
+    <div class="word-container" id="syllableWordContainer"></div>
+    <div class="feedback" id="syllableFeedback"></div>
+    <button class="next-button" id="nextSyllableButton">¡Siguiente Sílaba!</button>
+  </div>
+
+  <div class="container" id="level3" style="display: none;">
+    <h1>¡Aventura de Lectura - Nivel 3!</h1>
+    <div class="word-container" id="simpleWordContainer"></div>
+    <div class="feedback" id="wordFeedback"></div>
+    <button class="next-button" id="nextWordButton">¡Siguiente Palabra!</button>
+  </div>
+
+  <div class="level-buttons">
+    <button class="level-button" id="level1Button">Nivel 1</button>
+    <button class="level-button" id="level2Button">Nivel 2</button>
+    <button class="level-button" id="level3Button">Nivel 3</button>
+  </div>
+
+  <div class="sound-toggle" id="soundToggle">🔊</div>
+
+  <script>
+    let soundEnabled = true;
+    const soundToggle = document.getElementById('soundToggle');
+    soundToggle.onclick = () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+      playSound('click');
+    };
+
+    function speak(text) {
+      if (soundEnabled) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = 1.1;
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    function playSound(soundName) {
+      if (soundEnabled) {
+        const audio = new Audio(`https://example.com/sounds/${soundName}.mp3`);
+        audio.play();
+      }
+    }
+
+    // Nivel 1 - Abecedario
+    const alphabet = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+    const alphabetContainer = document.getElementById('alphabetContainer');
+
+    function createAlphabet() {
+      alphabetContainer.innerHTML = '';
+      for (let letter of alphabet) {
+        const letterBox = document.createElement('div');
+        letterBox.className = 'letter-box';
+        letterBox.textContent = letter;
+        letterBox.onclick = () => {
+          speak(letter);
+          playSound(`letter_${letter.toLowerCase()}`);
+          letterBox.classList.add('bounce');
+          setTimeout(() => letterBox.classList.remove('bounce'), 500);
+        };
+        alphabetContainer.appendChild(letterBox);
+      }
+    }
+
+    createAlphabet();
+
+    // Nivel 2 - Sílabas
+    const syllables = [
+      'BA', 'BE', 'BI', 'BO', 'BU',
+      'CA', 'CO', 'CU',
+      'DA', 'DE', 'DI', 'DO', 'DU',
+      'FA', 'FE', 'FI', 'FO', 'FU',
+      'GA', 'GO', 'GU',
+      'LA', 'LE', 'LI', 'LO', 'LU',
+      'MA', 'ME', 'MI', 'MO', 'MU',
+      'NA', 'NE', 'NI', 'NO', 'NU',
+      'PA', 'PE', 'PI', 'PO', 'PU',
+      'RA', 'RE', 'RI', 'RO', 'RU',
+      'SA', 'SE', 'SI', 'SO', 'SU',
+      'TA', 'TE', 'TI', 'TO', 'TU',
+      'VA', 'VE', 'VI', 'VO', 'VU'
+    ];
+
+    let currentSyllableIndex = 0;
+
+    const syllableContainer = document.getElementById('syllableContainer');
+    const syllableWordContainer = document.getElementById('syllableWordContainer');
+    const syllableFeedback = document.getElementById('syllableFeedback');
+    const nextSyllableButton = document.getElementById('nextSyllableButton');
+
+    function createSyllables() {
+      syllableContainer.innerHTML = '';
+      syllables.forEach((syllable, index) => {
+        const syllableBox = document.createElement('div');
+        syllableBox.className = 'syllable-box';
+        syllableBox.textContent = syllable;
+        syllableBox.onclick = () => {
+          speak(syllable);
+          playSound(`syllable_${syllable.toLowerCase()}`);
+          syllableBox.classList.add('bounce');
+          setTimeout(() => syllableBox.classList.remove('bounce'), 500);
+          currentSyllableIndex = index;
+          updateSyllableWords(syllable);
+        };
+        syllableContainer.appendChild(syllableBox);
+      });
+    }
+
+    function updateSyllableWords(syllable) {
+      syllableWordContainer.innerHTML = '';
+      const words = getWordsWithSyllable(syllable);
+      words.forEach(word => {
+        const wordBox = document.createElement('div');
+        wordBox.className = 'word-box';
+        wordBox.textContent = word;
+        wordBox.onclick = () => {
+          speak(word);
+          playSound(`word_${word.toLowerCase()}`);
+          wordBox.classList.add('bounce');
+          setTimeout(() => wordBox.classList.remove('bounce'), 500);
+        };
+        syllableWordContainer.appendChild(wordBox);
+      });
+    }
+
+    function getWordsWithSyllable(syllable) {
+      const wordList = {
+        'BA': ['Bata', 'Barco', 'Bala'],
+        'BE': ['Beso', 'Bebe', 'Belleza'],
+        'BI': ['Bici', 'Bidón', 'Bigote'],
+        'BO': ['Bola', 'Boca', 'Boda'],
+        'BU': ['Buzo', 'Burro', 'Búho'],
+        // ... Añadir más palabras para otras sílabas
+      };
+      return wordList[syllable] || ['mama', 'papa', 'pico'];
+    }
+
+    nextSyllableButton.onclick = () => {
+      currentSyllableIndex = (currentSyllableIndex + 1) % syllables.length;
+      updateSyllableWords(syllables[currentSyllableIndex]);
+      syllableFeedback.textContent = '';
+      speak('Siguiente sílaba');
+      playSound('next');
+    };
+
+    // Nivel 3 - Palabras simples
+    const simpleWords = ['Casa', 'Perro', 'Gato', 'Luna', 'Sol', 'Mesa', 'Silla', 'Flor', 'Nube', 'Pato'];
+    let currentWordIndex = 0;
+
+    const simpleWordContainer = document.getElementById('simpleWordContainer');
+    const wordFeedback = document.getElementById('wordFeedback');
+    const nextWordButton = document.getElementById('nextWordButton');
+
+    function updateSimpleWords() {
+      simpleWordContainer.innerHTML = '';
+      simpleWords.forEach((word, index) => {
+        const wordBox = document.createElement('div');
+        wordBox.className = 'word-box';
+        wordBox.textContent = word;
+        wordBox.onclick = () => {
+          speak(word);
+          playSound(`word_${word.toLowerCase()}`);
+          wordBox.classList.add('bounce');
+          setTimeout(() => wordBox.classList.remove('bounce'), 500);
+          currentWordIndex = index;
+          checkWord(word);
+        };
+        simpleWordContainer.appendChild(wordBox);
+      });
+    }
+
+    function checkWord(word) {
+      wordFeedback.textContent = `¡Muy bien! Has leído la palabra "${word}".`;
+      wordFeedback.style.color = 'green';
+      speak(`¡Muy bien! Has leído la palabra ${word}.`);
+      playSound('success');
+    }
+
+    nextWordButton.onclick = () => {
+      currentWordIndex = (currentWordIndex + 1) % simpleWords.length;
+      wordFeedback.textContent = '';
+      speak('Siguiente palabra');
+      playSound('next');
+    };
+
+    // Cambio de niveles
+    const level1 = document.getElementById('level1');
+    const level2 = document.getElementById('level2');
+    const level3 = document.getElementById('level3');
+    const level1Button = document.getElementById('level1Button');
+    const level2Button = document.getElementById('level2Button');
+    const level3Button = document.getElementById('level3Button');
+
+    level1Button.onclick = () => {
+      level1.style.display = 'block';
+      level2.style.display = 'none';
+      level3.style.display = 'none';
+      speak('¡Bienvenido al Nivel 1! Vamos a aprender todas las letras del abecedario.');
+      playSound('level');
+    };
+
+    level2Button.onclick = () => {
+      level1.style.display = 'none';
+      level2.style.display = 'block';
+      level3.style.display = 'none';
+      speak('¡Genial! Estás en el Nivel 2. Aprendamos sílabas.');
+      playSound('level');
+      createSyllables();
+    };
+
+    level3Button.onclick = () => {
+      level1.style.display = 'none';
+      level2.style.display = 'none';
+      level3.style.display = 'block';
+      speak('¡Fantástico! Has llegado al Nivel 3. Vamos a leer palabras simples.');
+      playSound('level');
+      updateSimpleWords();
+    };
+
+    // Inicialización
+    createSyllables();
+    updateSimpleWords();
+    speak('¡Bienvenido a la Aventura de Lectura! Ahora puedes aprender todo el abecedario en el Nivel 1, practicar sílabas en el Nivel 2 y leer palabras simples en el Nivel 3. ¡Diviértete!');
+    playSound('welcome');
+  </script>
+</body></html>
